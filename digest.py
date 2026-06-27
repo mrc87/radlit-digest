@@ -459,8 +459,8 @@ def gemini_summarize(title, body, is_fulltext):
 
     source_note = "the FULL TEXT" if is_fulltext else "the ABSTRACT ONLY"
     prompt = textwrap.dedent(f"""
-        You are summarizing a neuroradiology journal article for a practicing
-        neuroradiologist doing monthly literature review. You are working from
+        You are summarizing a interventional radiology journal article for a practicing
+        interventionalist radiologist doing monthly literature review. You are working from
         {source_note} of the article.
 
         Write a clear, useful summary. Adapt the structure to the article type:
@@ -754,9 +754,9 @@ def render_html(sections, generated, videos=None, topics=None, build_log=None):
                  : (a.abstract || '');
       const label = a.fulltext && a.fulltext.length>50 ? 'full text' : 'abstract';
       const prompt =
-        'Please give me a detailed summary of this neuroradiology article '+
-        '('+label+' below). I am a neuroradiologist; emphasize teaching points, '+
-        'differential diagnosis, distinguishing imaging features, and practical '+
+        'Please give me a detailed summary of this interventional radiology article '+
+        '('+label+' below). I am an interventional radiologist; emphasize teaching points, '+
+        'and practical '+
         'takeaways.\\n\\nTITLE: '+a.title+'\\nLINK: '+a.link+'\\n\\n'+body;
       navigator.clipboard.writeText(prompt).then(()=>{
         const b=document.getElementById('cp'+i);
@@ -1138,7 +1138,7 @@ def gemini_classify_video(title, description, topics):
         return "Other", True
     topic_list = ", ".join(topics)
     prompt = textwrap.dedent(f"""
-        You are organizing neuroradiology teaching videos. Given a video's title
+        You are organizing interventional radiology teaching videos. Given a video's title
         and description, do two things and reply with ONLY a JSON object, no
         markdown, no prose:
           1. "educational": true if this is teaching/educational content
@@ -1238,37 +1238,6 @@ def gather_videos(vcfg, log=lambda m: None):
         log("WARNING: every newly classified video was 'Other' — the Gemini classify "
             "call is likely failing (rate limit / key). Cached topics are still used.")
     return out, topics
-
-
-# ----------------------------------------------------------------------------
-# Neuro filter — keep only neuroradiology articles from broad journals
-# ----------------------------------------------------------------------------
-NEURO_MESH = [
-    "brain", "cerebr", "cerebell", "spinal cord", "spine", "vertebr",
-    "nervous system", "neuro", "cranial", "skull", "meningeal", "meninges",
-    "glioma", "glioblastoma", "astrocytoma", "medulloblastoma", "ependymoma",
-    "intracranial", "subarachnoid", "head and neck", "temporal bone",
-    "orbit", "optic", "facial", "trigeminal", "pituitary", "sella",
-    "carotid", "stroke", "myelopathy", "demyelinating", "multiple sclerosis",
-    "epilepsy", "hydrocephalus", "peripheral nerve",
-]
-NEURO_KEYWORDS = [
-    "brain", "cerebral", "cerebellar", "cerebellum", "spine", "spinal",
-    "vertebral", "cervical", "thoracic", "lumbar", "neuro", "neurologic",
-    "intracranial", "cranial", "skull base", "head and neck", "temporal bone",
-    "orbit", "orbital", "optic", "facial", "sinus", "sinonasal", "nasopharyn",
-    "oropharyn", "larynx", "laryng", "thyroid", "parotid", "salivary",
-    "glioma", "glioblastoma", "astrocytoma", "meningioma", "schwannoma",
-    "medulloblastoma", "ependymoma", "pituitary", "sella", "carotid",
-    "stroke", "infarct", "aneurysm", "hemorrhage", "demyelinat",
-    "multiple sclerosis", "myelopathy", "epilepsy", "hydrocephalus",
-    "white matter",
-    # Specific neuro phrases kept; bare "nerve"/"plexus" removed because they
-    # also match MSK/body articles. Legit neuro cases with these still pass via
-    # their MeSH tags (NEURO_MESH) or the specific phrases below.
-    "cranial nerve", "brachial plexus", "lumbosacral plexus", "nerve root",
-    "optic nerve", "facial nerve", "trigeminal",
-]
 
 
 # ----------------------------------------------------------------------------
