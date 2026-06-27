@@ -1,0 +1,63 @@
+name: Monthly RadLit Digest
+
+# Runs automatically at 06:00 UTC on the 1st of each month.
+# You can also trigger it by hand from the Actions tab (the button below).
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Build digest
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
+          CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python digest.py
+
+      - name: Save video classification cache
+        run: |
+          if [ -f video_cache.json ]; then
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add video_cache.json
+            git commit -m "Update video classification cache [skip ci]" || echo "No cache changes to commit"
+            git push || echo "Nothing to push"
+          fi
+
+      - name: Prepare site
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
