@@ -1,0 +1,44 @@
+# Your journal list.
+# To add a journal later: copy a block, change the name, pubmed_ta, and open_access flag.
+# `pubmed_ta` is the official PubMed "Title Abbreviation" — this is what makes the
+# query precise. If you add a journal and aren't sure of its abbreviation, search it
+# on https://www.ncbi.nlm.nih.gov/nlmcatalog and use the "Title Abbreviation" field.
+
+lookback_days: 366         # fetch a rolling year so the date-range buttons have data
+max_articles_per_journal: 400  # safety cap (a year of one journal); auto-summaries still capped below
+max_summaries_per_run: 60      # cap on Gemini calls per run to stay inside the free tier
+
+# Per-journal EZproxy: add `ezproxy: true` to a journal to route its links through
+# your institutional proxy (for journals you access via ClinicalKey). The prefix
+# below is used for any journal marked ezproxy: true. Journals without the flag
+# keep their normal direct links.
+ezproxy_prefix: "https://login.ezpminer.urmc.rochester.edu/login?url="
+
+journals:
+  - name: "AJNR (American Journal of Neuroradiology)"
+    pubmed_ta: "AJNR Am J Neuroradiol"
+    open_access: false       # subscription — abstract summary + deep link to full text
+
+  - name: "Neurographics"
+    source: "crossref"      # query CrossRef by ISSN (RSS feed blocks automated access)
+    issn: "2637-8329"
+    open_access: true        # summary from abstract when CrossRef provides one
+
+  # Broad journals: filter: neuro keeps only neuroradiology articles
+  # (brain, spine, head & neck, face, etc.) and hides the rest.
+  - name: "RadioGraphics"
+    pubmed_ta: "Radiographics"
+    open_access: false
+    filter: "neuro"
+
+  - name: "Radiologic Clinics of North America"
+    pubmed_ta: "Radiol Clin North Am"
+    open_access: false
+    filter: "neuro"
+    ezproxy: true            # accessed via ClinicalKey
+
+  - name: "Neuroimaging Clinics of North America"
+    pubmed_ta: "Neuroimaging Clin N Am"
+    open_access: false
+    ezproxy: true            # accessed via ClinicalKey
+    # all-neuro review series — no filter needed
