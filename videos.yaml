@@ -4,26 +4,29 @@
 # after @) is the reliable identifier; the script resolves it to a channel ID.
 #
 # Topics: the script asks the LLM to file each educational video under ONE of
-# these. If a video clearly fits none, the LLM may suggest a new topic, which
-# shows under "Other / suggested" so you can fold it into this list later.
-# Non-educational videos go to "Other".
+# these. Non-educational videos (vlogs, announcements, etc.) go to "Other".
 
 lookback_days: 366
 max_videos_per_channel: 200
-max_classifications_per_run: 8   # all current videos in one clean run; cache makes it a one-time cost. Free tier: 20 req/day, 5 req/min.
+max_classifications_per_run: 8   # cache makes classification a one-time cost per video.
+                                  # Free tier: ~20 req/day, 5 req/min.
 
 channels:
-  - handle: "sureshmukherji359"   # https://www.youtube.com/@sureshmukherji359
-    name: "Suresh Mukherji"
+  - handle: "SIRspecialists"    # https://www.youtube.com/@SIRspecialists
+    name: "Society of Interventional Radiology (SIR)"
+
+  - handle: "CIRSEofficial"     # https://www.youtube.com/@CIRSEofficial
+    name: "CIRSE"
 
 topics:
-  - "Head & Neck"
-  - "Skull Base"
-  - "Temporal Bone"
-  - "Spine"
-  - "Brain Tumors"
-  - "Vascular / Stroke"
-  - "Pediatric Neuro"
-  - "Anatomy"
-  - "MR/CT Physics & Technique"
+  - "Embolization"
+  - "Angioplasty & Stenting"
+  - "TIPS & Portal Hypertension"
+  - "Biliary"
+  - "Oncologic Ablation"
+  - "Venous & IVC"
+  - "Genitourinary"
+  - "Dialysis Access"
+  - "Trauma & Hemorrhage"
+  - "Vascular Malformations"
   - "Other"
