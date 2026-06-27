@@ -1271,6 +1271,58 @@ NEURO_KEYWORDS = [
 ]
 
 
+# ----------------------------------------------------------------------------
+# IR filter — keep only interventional radiology articles from broad journals
+# ----------------------------------------------------------------------------
+IR_MESH = [
+    "embolization", "embolism", "angioplasty", "stents", "stent",
+    "catheter", "catheterization", "angiography", "chemoembolization",
+    "radioembolization", "ablation", "thrombectomy", "thrombolysis",
+    "biliary", "drainage", "nephrostomy", "hepatic artery", "portal vein",
+    "transjugular intrahepatic portosystemic", "tips", "fistula",
+    "vascular malformation", "arteriovenous malformation", "venous",
+    "inferior vena cava", "ivc filter", "interventional radiology",
+    "percutaneous", "fluoroscopy", "endovascular", "revascularization",
+    "atherectomy", "fibroid", "uterine artery", "prostatic artery",
+    "tumor ablation", "radiofrequency ablation", "microwave ablation",
+    "cryoablation", "transarterial",
+]
+IR_KEYWORDS = [
+    "embolization", "embolisation", "angioplasty", "stent", "stenting",
+    "catheter", "catheterization", "catheterisation", "angiography",
+    "chemoembolization", "chemoembolisation", "radioembolization",
+    "transarterial", "ablation", "thrombectomy", "thrombolysis",
+    "biliary drainage", "biliary stent", "cholangitis", "cholangioscopy",
+    "nephrostomy", "ureteral stent", "hepatic artery", "portal hypertension",
+    "portal vein", "transjugular", "tips", "tipss",
+    "arteriovenous malformation", "avm", "vascular malformation",
+    "inferior vena cava", "ivc filter", "venous access", "dialysis access",
+    "interventional radiology", "interventional oncology",
+    "percutaneous", "endovascular", "revascularization",
+    "uterine artery embolization", "uterine fibroid embolization",
+    "prostatic artery embolization", "prostate artery embolization",
+    "radiofrequency ablation", "microwave ablation", "cryoablation",
+    "tumor ablation", "hepatic ablation", "renal ablation",
+    "y90", "y-90", "yttrium", "sir-spheres", "therasphere",
+    "varicocele", "pelvic congestion", "lymphangiography",
+    "thoracic duct", "lymphatic intervention",
+]
+
+
+def is_ir_article(a):
+    """True if an article looks like interventional radiology content
+    (MeSH terms first, then a title/abstract keyword backstop)."""
+    for m in a.get("mesh", []):
+        for term in IR_MESH:
+            if term in m:
+                return True
+    hay = (a.get("title", "") + " " + a.get("abstract", "")).lower()
+    for kw in IR_KEYWORDS:
+        if kw in hay:
+            return True
+    return False
+
+
 def normalize_type(t):
     """Fold PubMed and CrossRef type labels into canonical filter buckets."""
     s = (t or "").lower()
@@ -1333,11 +1385,15 @@ def main():
                 meta.extend(fetch_metadata(pmids[i:i+100]))
                 time.sleep(0.4)
 
-        # Optional neuro-only filter for broad/general journals.
+        # Optional subject filter for broad/general journals.
         if j.get("filter") == "neuro":
             before = len(meta)
             meta = [a for a in meta if is_neuro_article(a)]
             log(f"{j['name']}: neuro filter kept {len(meta)} of {before} articles")
+        elif j.get("filter") == "ir":
+            before = len(meta)
+            meta = [a for a in meta if is_ir_article(a)]
+            log(f"{j['name']}: IR filter kept {len(meta)} of {before} articles")
 
         out_articles = []
         for a in meta:
